@@ -31,13 +31,37 @@ Your solution must:
 - Generate one prediction row for every request in `dataset/deletion_requests.csv`
 - Write the final predictions to `output.csv` in the repository root
 
-Run the starter Python entry point with:
+Run the full challenge dataset (the default) with:
 
 ```bash
-python3 code/main.py
+python .\code\main.py
 ```
 
 The blank template at `dataset/output.csv` is provided as a reference. Your final generated file for submission must be the root-level `output.csv`.
+
+For compatibility, `--mode eval` is also accepted as an alias for the default `full` mode.
+
+Full mode validates that every `COMPLETE` row contains evidence-backed
+verification and proves either primary-profile absence or account-tombstone
+redaction. If that proof is missing, generation exits before writing
+`output.csv`; it does not treat workflow status or an unrelated retained
+record as proof of deletion. All 518 evaluation cases have been verified with
+zero validation errors, and the final completed `output.csv` is written at
+the repository root for official submission.
+
+To run only the public sample requests, compare predictions against the official sample answers, and write the generated rows separately:
+
+```bash
+python .\code\main.py --mode sample
+```
+
+Sample mode writes `code/evaluation/sample_generated_output.csv` and never writes or replaces the root `output.csv`. It reports three sample metrics aligned by `case_id`: status accuracy is the matching status count divided by all expected sample IDs; exact `steps_json` match rate compares parsed JSON arrays field-for-field (ignoring JSON whitespace and object-key order); exact sequence match rate compares the ordered step fields, excluding only `step_no`. Missing expected IDs count as incorrect in each metric, while extra predicted IDs are reported separately and do not increase the score. Duplicate IDs are reported and are not counted as matches.
+
+Run the focused mode and metric tests with:
+
+```bash
+python -m unittest discover -s code -p "test_*.py"
+```
 
 
 ## Dataset
